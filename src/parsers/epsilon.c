@@ -12,6 +12,7 @@ static const HParserVtable epsilon_vt = {
   .parse = parse_epsilon,
   .isValidRegular = h_true,
   .isValidCF = h_true,
+  .desugar = desugar_epsilon,
 };
 
 static const HParser epsilon_p = {

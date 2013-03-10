@@ -20,10 +20,16 @@ static bool ignore_isValidCF(void *env) {
   return (p->vtable->isValidCF(p->env));
 }
 
+static HCFChoice* desugar_ignore(HAllocator *mm__, void *env) {
+  HParser *p = (HParser*)env;
+  return (p->vtable->desugar(mm__, p->env));
+}
+
 static const HParserVtable ignore_vt = {
   .parse = parse_ignore,
   .isValidRegular = ignore_isValidRegular,
   .isValidCF = ignore_isValidCF,
+  .desugar = desugar_ignore,
 };
 
 const HParser* h_ignore(const HParser* p) {
