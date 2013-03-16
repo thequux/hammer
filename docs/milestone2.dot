@@ -25,6 +25,19 @@ regex_svm_actions -> regex_driver;
 llk_driver -> llk;
 llk_gen -> llk;
 
+// end-to-end tests
+regex -> regex_tests -> tests;
+lr -> lalr_tests -> tests;
+lr -> glr_tests -> tests;
+llk -> llk_tests -> tests;
+
+llk_driver -> llk_driver_tests -> tests;
+lr_driver -> lr_driver_tests -> tests;
+regex_svm -> regex_svm_tests -> tests;
+regex_rvm -> regex_rvm_tests -> tests;
+regex_svm_rvm_asm -> regex_svm_tests;
+regex_svm_rvm_asm -> regex_rvm_tests;
+
 
 /*
  * 
