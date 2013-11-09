@@ -1,6 +1,7 @@
 from cffi import FFI
 import threading
 import sys
+import abc
 
 _ffi = FFI()
 
@@ -228,13 +229,17 @@ class _DynamicScopeHolder(threading.local):
     def __enter__(self):
         self._ctxstack.append([])
     def __exit__(self, exc_type, exc_value, traceback):
-        self._ctxstack.pop()
+        #self._ctxstack.pop()
         return False
     def stash(self, *objs):
+        print "stashing"
         if len(self._ctxstack) < 1:
+            print "Error!"
             raise Exception("Not in any dynamic scope")
         for obj in objs:
             self._ctxstack[-1].append(obj)
+    
+            
 def _fromHParsedToken(cobj):
     # TODO: Free the toplevel parser
     tt = cobj.token_type
@@ -261,9 +266,12 @@ def _toHParsedToken(arena, pyobj):
     if pyobj is None:
         return _ffi.NULL
     cobj = _ffi.new_handle(pyobj)
-    _parser_result_holder.stash(cobj)
+    _parser_result_holder.stash(cobj, pyobj)
 
-    hpt = _ffi.cast("HParsedToken*", _lib.h_arena_malloc(_ffi.sizeof(parseResult.arena, "HParsedToken")))
+    hpt = _ffi.new("HParsedToken*")
+    _parser_result_holder.stash(hpt)
+    print hpt
+    #hpt = _ffi.cast("HParsedToken*", _lib.h_arena_malloc(arena, _ffi.sizeof("HParsedToken")))
     hpt.token_type = _lib.TT_PYTHON
     hpt.user = cobj
     hpt.bit_offset = chr(127)
@@ -277,6 +285,7 @@ def _fromParseResult(cobj):
 
 def _to_haction(fn):
     """Turn a function that transforms a parsed value into an HAction"""
+    fn = lambda x: x
     def action(parse_result):
         res = _toHParsedToken(parse_result.arena,  fn(_fromParseResult(parse_result)))
         if res != _ffi.NULL and parse_result.ast != _ffi.NULL:

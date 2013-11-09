@@ -21,7 +21,7 @@
 
 #include "hammer.h"
 #include "internal.h"
-
+#include <malloc.h>
 
 struct arena_link {
   // TODO:
@@ -60,7 +60,7 @@ HArena *h_new_arena(HAllocator* mm__, size_t block_size) {
   ret->wasted = sizeof(struct arena_link) + sizeof(struct HArena_) + block_size;
   return ret;
 }
-
+#ifdef HAMMER_DEBUG_ARENA
 void* h_arena_malloc(HArena *arena, size_t size) {
   if (size <= arena->head->free) {
     // fast path..
@@ -97,6 +97,14 @@ void* h_arena_malloc(HArena *arena, size_t size) {
 void h_arena_free(HArena *arena, void* ptr) {
   // To be used later...
 }
+#else
+void* h_arena_malloc(HArena *arena, size_t size) {
+  (void)arena;
+  return malloc(size);
+}
+void h_arena_free(HArena *arena, void* ptr) {
+}
+#endif
 
 void h_delete_arena(HArena *arena) {
   HAllocator *mm__ = arena->mm__;
